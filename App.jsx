@@ -35,10 +35,31 @@ const openDatabase = async () => {
   }
 };
 
+const getUsers = async () => {
+  if (!db) {
+    return;
+  }
+
+  db.transaction(tx => {
+    tx.executeSql(
+      'SELECT * FROM user;',
+      [],
+      (_, {rows}) => {
+        let users = [];
+        for (let i = 0; i < rows.length; i++) {
+          users.push(rows.item(i));
+        }
+        console.log('Users:', users);
+      },
+      error => console.error('Error fetching users: ', error),
+    );
+  });
+};
+
 const insertUser = async (name, age) => {
   (await db).transaction(tx => {
     tx.executeSql(
-      'INSERT INTO user (name, age) VALUE (?, ?);',
+      'INSERT INTO user (name, age) VALUES (?, ?);',
       [name, age],
       (_, result) => console.log('User added successfully! ', result),
       error => console.error('Error inserting user: ', error),
@@ -54,17 +75,23 @@ const App = () => {
   };
 
   React.useEffect(() => {
-    openDatabase;
+    openDatabase();
   }, []);
 
-  const addUser = () => insertUser('Van A', 30);
+  const addUser = async () => await insertUser('Van A', 30);
+  const fetchUsers = async () => await getUsers();
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={{backgroundStyle}}>
         <Button title="Add User" onPress={addUser} />
+        <Button title="Get Users" onPress={fetchUsers} />
       </View>
     </SafeAreaView>
+    // <View style={styles.container}>
+    // <Text style={styles.textStyle}>Add User</Text>
+    /* <Button title="Add User" onPress={addUser} />
+      </View> */
   );
 };
 
@@ -73,6 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
 
