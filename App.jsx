@@ -67,6 +67,17 @@ const insertUser = async (name, age) => {
   });
 };
 
+const deleteUser = async (id) => {
+  (await db).transaction(tx => {
+    tx.executeSql(
+      'DELETE FROM user WHERE id = ?;',
+      [id],
+      (_, result) => console.log('User delete successfully! ', result),
+      error => console.error('Error delete user: ', error),
+    );
+  });
+};
+
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -80,18 +91,16 @@ const App = () => {
 
   const addUser = async () => await insertUser('Van A', 30);
   const fetchUsers = async () => await getUsers();
+  const removeUser = async () => await deleteUser(1);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={{backgroundStyle}}>
         <Button title="Add User" onPress={addUser} />
         <Button title="Get Users" onPress={fetchUsers} />
+        <Button title="Delete User" onPress={removeUser} />
       </View>
     </SafeAreaView>
-    // <View style={styles.container}>
-    // <Text style={styles.textStyle}>Add User</Text>
-    /* <Button title="Add User" onPress={addUser} />
-      </View> */
   );
 };
 
