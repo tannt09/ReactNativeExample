@@ -67,13 +67,24 @@ const insertUser = async (name, age) => {
   });
 };
 
+const updateUser = async (id, name, age) => {
+  (await db).transaction(tx => {
+    tx.executeSql(
+      'UPDATE user SET name = ?, age = ? WHERE id = ?;',
+      [name, age, id],
+      (_, result) => console.log('User update successfully! ', result.raw),
+      error => console.error('Error updating user: ', error),
+    );
+  });
+};
+
 const deleteUser = async (id) => {
   (await db).transaction(tx => {
     tx.executeSql(
       'DELETE FROM user WHERE id = ?;',
       [id],
       (_, result) => console.log('User delete successfully! ', result),
-      error => console.error('Error delete user: ', error),
+      error => console.error('Error deleting user: ', error),
     );
   });
 };
@@ -90,6 +101,7 @@ const App = () => {
   }, []);
 
   const addUser = async () => await insertUser('Van A', 30);
+  const editUser = async () => await updateUser(5, 'Van B', 20);
   const fetchUsers = async () => await getUsers();
   const removeUser = async () => await deleteUser(1);
 
@@ -99,6 +111,7 @@ const App = () => {
         <Button title="Add User" onPress={addUser} />
         <Button title="Get Users" onPress={fetchUsers} />
         <Button title="Delete User" onPress={removeUser} />
+        <Button title="Edit User" onPress={editUser} />
       </View>
     </SafeAreaView>
   );
