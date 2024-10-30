@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
 import {
   Button,
@@ -35,24 +28,30 @@ const openDatabase = async () => {
   }
 };
 
-const getUsers = async () => {
+const getUsers = () => {
   if (!db) {
-    return;
+    return Promise.resolve([]);
   }
 
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT * FROM user;',
-      [],
-      (_, {rows}) => {
-        let users = [];
-        for (let i = 0; i < rows.length; i++) {
-          users.push(rows.item(i));
-        }
-        console.log('Users:', users);
-      },
-      error => console.error('Error fetching users: ', error),
-    );
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM user;',
+        [],
+        (_, {rows}) => {
+          let users = [];
+          for (let i = 0; i < rows.length; i++) {
+            users.push(rows.item(i));
+          }
+          console.log('Users:', users);
+          resolve(users);
+        },
+        error => {
+          console.error('Error fetching users: ', error);
+          reject([]);
+        },
+      );
+    });
   });
 };
 
@@ -78,7 +77,7 @@ const updateUser = async (id, name, age) => {
   });
 };
 
-const deleteUser = async (id) => {
+const deleteUser = async id => {
   (await db).transaction(tx => {
     tx.executeSql(
       'DELETE FROM user WHERE id = ?;',
@@ -96,20 +95,37 @@ const App = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  const [listUsers, setListUsers] = React.useState([]);
+
   React.useEffect(() => {
     openDatabase();
+    fetchUsers();
   }, []);
 
-  const addUser = async () => await insertUser('Van A', 30);
-  const editUser = async () => await updateUser(5, 'Van B', 20);
-  const fetchUsers = async () => await getUsers();
-  const removeUser = async () => await deleteUser(1);
+  const fetchUsers = async () => {
+    const users = await getUsers();
+    setListUsers(users);
+  };
+
+  const addUser = async () => {
+    await insertUser('Van A', 30);
+    fetchUsers();
+  };
+  const editUser = async () => {
+    await updateUser(2, 'Van B', 20);
+    fetchUsers();
+  };
+  const removeUser = async () => {
+    await deleteUser(3);
+    fetchUsers();
+  };
+
+  console.log('----1111 ', listUsers);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={{backgroundStyle}}>
         <Button title="Add User" onPress={addUser} />
-        <Button title="Get Users" onPress={fetchUsers} />
         <Button title="Delete User" onPress={removeUser} />
         <Button title="Edit User" onPress={editUser} />
       </View>
