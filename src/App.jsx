@@ -1,13 +1,13 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 import {
   SafeAreaView,
-  useColorScheme,
-  View,
   StyleSheet,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import AllUserScreen from './screens/AllUserScreen/AllUserScreen';
 
 const db = SQLite.openDatabase({name: 'testDataBase.db', location: 'default'});
 
@@ -27,12 +27,9 @@ const openDatabase = async () => {
   }
 };
 
-const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createStackNavigator();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+const App = () => {
 
   React.useEffect(() => {
     openDatabase();
@@ -40,7 +37,9 @@ const App = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={backgroundStyle}></View>
+      <NavigationContainer initialState="AllUser">
+        <Stack.Screen name="AllUser" component={AllUserScreen}/>
+      </NavigationContainer>
     </SafeAreaView>
   );
 };
