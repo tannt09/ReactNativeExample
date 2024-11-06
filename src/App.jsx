@@ -1,10 +1,7 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 
 import AllUserScreen from './screens/AllUserScreen/AllUserScreen';
@@ -30,15 +27,16 @@ const openDatabase = async () => {
 const Stack = createStackNavigator();
 
 const App = () => {
-
   React.useEffect(() => {
     openDatabase();
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <NavigationContainer initialState="AllUser">
-        <Stack.Screen name="AllUser" component={AllUserScreen}/>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="AllUser">
+          <Stack.Screen name="AllUser" component={AllUserScreen} />
+        </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>
   );
@@ -47,8 +45,6 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'white',
   },
 });
